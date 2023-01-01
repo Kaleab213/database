@@ -1,0 +1,637 @@
+-- phpMyAdmin SQL Dump
+-- version 5.1.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1:3306
+-- Generation Time: Jul 20, 2022 at 07:58 PM
+-- Server version: 5.7.36
+-- PHP Version: 7.4.26
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `pharmacy_management`
+--
+CREATE DATABASE IF NOT EXISTS `pharmacy_management` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `pharmacy_management`;
+create user 'manager'@'localhost' identified by '123456781';
+create user 'cashier'@'localhost' identified by '123456782';
+create user 'pharmacist'@'localhost' identified by '123456783';
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `annual_sales_profile`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `annual_sales_profile`;
+CREATE TABLE IF NOT EXISTS `annual_sales_profile` (
+`Amount_paid_in_birr` int(8)
+,`Amount_in_birr` int(8)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `bill`
+--
+
+DROP TABLE IF EXISTS `bill`;
+CREATE TABLE IF NOT EXISTS `bill` (
+  `Bill_type` varchar(20) DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `Amount_paid_in_birr` int(8) DEFAULT NULL,
+  `Bill_id` int(10) NOT NULL,
+  `Licence` varchar(50) NOT NULL,
+  PRIMARY KEY (`Bill_id`),
+  KEY `Licence` (`Licence`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `bill`
+--
+
+INSERT INTO `bill` (`Bill_type`, `date`, `Amount_paid_in_birr`, `Bill_id`, `Licence`) VALUES
+('open', '2002-03-21', 1024, 301, 'HO_pharmacy/1234'),
+('closed', '2023-02-21', 1023, 302, 'HO_pharmacy/1235'),
+('isolated', '2026-02-22', 900, 303, 'HO_pharmacy/1234');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `bill_report`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `bill_report`;
+CREATE TABLE IF NOT EXISTS `bill_report` (
+`Bill_id` int(10)
+,`Amount_paid_in_birr` int(8)
+,`Bill_type` varchar(20)
+,`Date` date
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `casual_customer`
+--
+
+DROP TABLE IF EXISTS `casual_customer`;
+CREATE TABLE IF NOT EXISTS `casual_customer` (
+  `prescription` varchar(100) DEFAULT NULL,
+  `TXN_id` int(15) NOT NULL,
+  `Medicine_id` int(6) DEFAULT NULL,
+  `Licence` varchar(50) NOT NULL,
+  `Date` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`TXN_id`),
+  KEY `Licence` (`Licence`),
+  KEY `Medicine_id` (`Medicine_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `casual_customer`
+--
+
+INSERT INTO `casual_customer` (`prescription`, `TXN_id`, `Medicine_id`, `Licence`, `Date`) VALUES
+('beta_blocker take one per 8 hour', 1001, 70001, 'HO_pharmacy/1234', '02/03/20'),
+('beta_blocker take one per 6 hour', 1002, 70001, 'HO_pharmacy/1234', '13/02/20'),
+('alupent take one per 6 hour', 1004, 70002, 'HO_pharmacy/1235', '15/02/20'),
+('alupent take one per 6 hour', 1005, 70002, 'HO_pharmacy/1236', '15/03/20'),
+('metadoxine take one per day', 1006, 70003, 'HO_pharmacy/1236', '02/03/20');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `customer`
+--
+
+DROP TABLE IF EXISTS `customer`;
+CREATE TABLE IF NOT EXISTS `customer` (
+  `Customer_id` int(7) NOT NULL,
+  `First_name` varchar(20) DEFAULT NULL,
+  `Last_name` varchar(20) DEFAULT NULL,
+  `prescription` varchar(20) DEFAULT NULL,
+  `Address` varchar(20) DEFAULT NULL,
+  `Order_id` int(10) NOT NULL,
+  PRIMARY KEY (`Customer_id`),
+  KEY `Order_id` (`Order_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `customer`
+--
+
+INSERT INTO `customer` (`Customer_id`, `First_name`, `Last_name`, `prescription`, `Address`, `Order_id`) VALUES
+(1, 'henok', 'gebru', 'amoxiciline', 'akaki', 500),
+(7, 'selam', 'melaku', 'cephalexin', 'goro', 501),
+(101, 'hirut', 'gadisa', 'metroprolol', 'ayat', 503),
+(2101, 'yared', 'belete', 'toothpaste', 'arada', 502),
+(1071, 'hlina', 'yihun', 'moisturizer', 'arada', 504);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `delivery`
+--
+
+DROP TABLE IF EXISTS `delivery`;
+CREATE TABLE IF NOT EXISTS `delivery` (
+  `Delivery_id` int(10) NOT NULL,
+  `Address_of_delivey` varchar(20) DEFAULT NULL,
+  `Date_of_delivery` date DEFAULT NULL,
+  `Order_id` int(10) NOT NULL,
+  PRIMARY KEY (`Delivery_id`),
+  KEY `Order_id` (`Order_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `delivery`
+--
+
+INSERT INTO `delivery` (`Delivery_id`, `Address_of_delivey`, `Date_of_delivery`, `Order_id`) VALUES
+(101, 'megenaga', '2013-05-22', 503),
+(102, 'kality', '2022-05-22', 500),
+(103, 'ayer tena', '2009-05-22', 502),
+(104, 'mexico', '2011-07-22', 501);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employee`
+--
+
+DROP TABLE IF EXISTS `employee`;
+CREATE TABLE IF NOT EXISTS `employee` (
+  `First_name` varchar(15) DEFAULT NULL,
+  `Last_name` varchar(15) DEFAULT NULL,
+  `Salary` int(6) DEFAULT NULL,
+  `Mobile` int(10) DEFAULT NULL,
+  `Employee_id` int(5) NOT NULL,
+  `Date_of_birth` varchar(10) DEFAULT NULL,
+  `Date_of_work_start` varchar(10) DEFAULT NULL,
+  `Licence` varchar(50) NOT NULL,
+  `Role_number` int(11) DEFAULT NULL,
+  PRIMARY KEY (`Employee_id`),
+  KEY `Licence` (`Licence`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `employee`
+--
+
+INSERT INTO `employee` (`First_name`, `Last_name`, `Salary`, `Mobile`, `Employee_id`, `Date_of_birth`, `Date_of_work_start`, `Licence`, `Role_number`) VALUES
+('melak', 'alebel', 12000, 922334455, 1, '12/03/1960', '10/10/2009', 'HO_pharmacy/1235', 1),
+('hiwot', 'abraham', 7000, 972834445, 2, '12/03/1978', '23/07/2010', 'HO_pharmacy/1236', 2),
+('firaol', 'biniyam', 7000, 902214895, 3, '12/03/1980', '03/12/2010', 'HO_pharmacy/1237', 2),
+('tigist', 'thomas', 4500, 900234895, 4, '12/03/1984', '15/06/2012', 'HO_pharmacy/1234', 3),
+('meron', 'dawit', 4500, 918453275, 5, '01/04/1979', '18/09/2013', 'HO_pharmacy/1235', 3);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `employee_review`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `employee_review`;
+CREATE TABLE IF NOT EXISTS `employee_review` (
+`Employee_id` int(5)
+,`First_name` varchar(15)
+,`Last_name` varchar(15)
+,`Salary` int(6)
+,`Role_title` varchar(10)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `medicine`
+--
+
+DROP TABLE IF EXISTS `medicine`;
+CREATE TABLE IF NOT EXISTS `medicine` (
+  `Medicine_dose` varchar(10) DEFAULT NULL,
+  `Medicine_expiredate` varchar(10) DEFAULT NULL,
+  `Medicine_type` varchar(20) DEFAULT NULL,
+  `Medicine_title` varchar(20) DEFAULT NULL,
+  `Medicine_id` int(6) NOT NULL,
+  `Medicine_cost` int(4) DEFAULT NULL,
+  `Stock_number` int(2) NOT NULL,
+  `Medicine_description` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`Medicine_id`),
+  KEY `Stock_number` (`Stock_number`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `medicine`
+--
+
+INSERT INTO `medicine` (`Medicine_dose`, `Medicine_expiredate`, `Medicine_type`, `Medicine_title`, `Medicine_id`, `Medicine_cost`, `Stock_number`, `Medicine_description`) VALUES
+('300', '1/01/14EC', 'Beta_blockers', 'heart_Medication', 70001, 401, 1, 'take one per 8 hour'),
+('310', '2/06/16EC', 'Alupent', 'Lung_Medication', 70002, 509, 2, 'take one per 6 hour'),
+('233', '1/09/14EC', 'Metadoxine', 'liver_Medication', 70003, 1000, 3, 'take one per day');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `orders`
+--
+
+DROP TABLE IF EXISTS `orders`;
+CREATE TABLE IF NOT EXISTS `orders` (
+  `Order_id` int(10) NOT NULL,
+  `Order_date` date DEFAULT NULL,
+  `Medicine_id` int(6) NOT NULL,
+  `Quantity` int(10) NOT NULL,
+  PRIMARY KEY (`Order_id`),
+  KEY `Medicine_id` (`Medicine_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`Order_id`, `Order_date`, `Medicine_id`, `Quantity`) VALUES
+(504, '2013-05-22', 70001, 23),
+(503, '2012-04-22', 70003, 7),
+(502, '2022-05-22', 70002, 9),
+(501, '2009-05-22', 70001, 9),
+(500, '2011-07-22', 70002, 10);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `ordersview`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `ordersview`;
+CREATE TABLE IF NOT EXISTS `ordersview` (
+`Medicine_id` int(6)
+,`Medicine_type` varchar(20)
+,`Medicine_title` varchar(20)
+,`Medicine_expiredate` varchar(10)
+,`Medicine_cost` int(4)
+,`Quantity` int(10)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pharmacy_branch`
+--
+
+DROP TABLE IF EXISTS `pharmacy_branch`;
+CREATE TABLE IF NOT EXISTS `pharmacy_branch` (
+  `Branch_number` int(11) DEFAULT NULL,
+  `Address` varchar(15) DEFAULT NULL,
+  `Licence` varchar(50) NOT NULL,
+  `Phone_number` int(10) DEFAULT NULL,
+  `Email` varchar(20) DEFAULT NULL,
+  `Date_of_foundation` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`Licence`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `pharmacy_branch`
+--
+
+INSERT INTO `pharmacy_branch` (`Branch_number`, `Address`, `Licence`, `Phone_number`, `Email`, `Date_of_foundation`) VALUES
+(1, 'Addis ketema', 'HO_pharmacy/1234', 115156916, 'kenemaP01@gmail.com', '02/04/1987'),
+(2, 'Nefas slk', 'Ho_pharmacy/1235', 115662803, 'kenemap02@gmail.com', '23/07/1995'),
+(3, 'Sidist Kilo', 'HO_pharmacy/1236', 115686374, 'kenemap03@gmail.com', '21/10/2000'),
+(4, 'shegolie', 'HO_pharmacy/1237', 112445686, 'kenamap04@gmail.com', '12/01/2002');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `pharm_stock`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `pharm_stock`;
+CREATE TABLE IF NOT EXISTS `pharm_stock` (
+`Type_of_drugs` varchar(20)
+,`Number_of_drugs` int(8)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `roles`
+--
+
+DROP TABLE IF EXISTS `roles`;
+CREATE TABLE IF NOT EXISTS `roles` (
+  `Role_title` varchar(10) DEFAULT NULL,
+  `Role_number` int(2) NOT NULL,
+  PRIMARY KEY (`Role_number`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `roles`
+--
+
+INSERT INTO `roles` (`Role_title`, `Role_number`) VALUES
+('manager', 1),
+('pharmacist', 2),
+('cashier', 3);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `sales`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `sales`;
+CREATE TABLE IF NOT EXISTS `sales` (
+`Quantity_of_medicine` int(6)
+,`Amount_of_sales_in_birr` int(8)
+,`Medicine_title` varchar(20)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stock`
+--
+
+DROP TABLE IF EXISTS `stock`;
+CREATE TABLE IF NOT EXISTS `stock` (
+  `Stock_number` int(2) NOT NULL,
+  `Type_of_drugs` varchar(20) DEFAULT NULL,
+  `Number_of_drugs` int(8) DEFAULT NULL,
+  `Medicine_id` int(6) NOT NULL,
+  PRIMARY KEY (`Stock_number`),
+  KEY `Medicine_id` (`Medicine_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `stock`
+--
+
+INSERT INTO `stock` (`Stock_number`, `Type_of_drugs`, `Number_of_drugs`, `Medicine_id`) VALUES
+(1, 'beta_blocker', 321000, 70001),
+(2, 'Alupent', 500000, 70002),
+(3, 'metadoxine', 700000, 70003);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `supplier`
+--
+
+DROP TABLE IF EXISTS `supplier`;
+CREATE TABLE IF NOT EXISTS `supplier` (
+  `Phone_number` int(10) DEFAULT NULL,
+  `Supplier_name` varchar(20) DEFAULT NULL,
+  `Address` varchar(20) DEFAULT NULL,
+  `Email` varchar(20) DEFAULT NULL,
+  `Licence` varchar(50) NOT NULL,
+  `Supplier_id` varchar(10) NOT NULL,
+  PRIMARY KEY (`Supplier_id`),
+  KEY `Licence` (`Licence`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `supplier`
+--
+
+INSERT INTO `supplier` (`Phone_number`, `Supplier_name`, `Address`, `Email`, `Licence`, `Supplier_id`) VALUES
+(934432323, 'Meaza Drug supplies', '4killo', 'Meaza@gmail.com', 'HO_pharmacy/1234', '101'),
+(912112121, 'TTY Pharmacetiual', 'Mexico', 'TTY@gmail.com', 'HO_pharmacy/1236', '102'),
+(921212121, 'Agmas_supplier', 'Bole', 'Agmas@gmail.com', 'HO_pharmacy/1235', '103');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tax`
+--
+
+DROP TABLE IF EXISTS `tax`;
+CREATE TABLE IF NOT EXISTS `tax` (
+  `Year` int(10) DEFAULT NULL,
+  `Licence` varchar(50) NOT NULL,
+  `Amout_paid` int(8) DEFAULT NULL,
+  KEY `Licence` (`Licence`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `tax`
+--
+
+INSERT INTO `tax` (`Year`, `Licence`, `Amout_paid`) VALUES
+(2009, 'HO_pharmacy/1236', 2002300),
+(2010, 'HO_pharmacy/1236', 2500370),
+(2011, 'HO_pharmacy/1234', 3019440),
+(2012, 'HO_pharmacy/1237', 3104290),
+(2012, 'HO_pharmacy/1236', 3400210);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `tax_expenditure`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `tax_expenditure`;
+CREATE TABLE IF NOT EXISTS `tax_expenditure` (
+`Amount_of_sales_in_birr` int(8)
+,`Amout_paid` int(8)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `total_expense`
+--
+
+DROP TABLE IF EXISTS `total_expense`;
+CREATE TABLE IF NOT EXISTS `total_expense` (
+  `Year` int(10) NOT NULL,
+  `Amount_paid_in_birr` int(8) DEFAULT NULL,
+  `Licence` varchar(50) NOT NULL,
+  KEY `Licence` (`Licence`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `total_expense`
+--
+
+INSERT INTO `total_expense` (`Year`, `Amount_paid_in_birr`, `Licence`) VALUES
+(2009, 4500067, 'HO_pharmacy/1234'),
+(2009, 5707060, 'HO_pharmacy/1236'),
+(2011, 5797065, 'HO_pharmacy/1235'),
+(2012, 7802304, 'HO_pharmacy/1235'),
+(2013, 8209971, 'HO_pharmacy/1237');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `total_revenue`
+--
+
+DROP TABLE IF EXISTS `total_revenue`;
+CREATE TABLE IF NOT EXISTS `total_revenue` (
+  `Amount_in_birr` int(8) DEFAULT NULL,
+  `Licence` varchar(50) NOT NULL,
+  `Year` varchar(10) DEFAULT NULL,
+  KEY `Licence` (`Licence`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `total_revenue`
+--
+
+INSERT INTO `total_revenue` (`Amount_in_birr`, `Licence`, `Year`) VALUES
+(4000000, 'HO_pharmacy/1234', '2009'),
+(4500000, 'HO_pharmacy/1235', '2010'),
+(500000, 'HO_pharmacy/1235', '2011'),
+(4950000, 'HO_pharmacy/1237', '2012'),
+(600000, 'HO_pharmacy/1237', '2013');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `total_sale`
+--
+
+DROP TABLE IF EXISTS `total_sale`;
+CREATE TABLE IF NOT EXISTS `total_sale` (
+  `Year` varchar(10) DEFAULT NULL,
+  `Quantity_of_medicine` int(6) DEFAULT NULL,
+  `Amount_of_sales_in_birr` int(8) DEFAULT NULL,
+  `Medicine_title` varchar(20) DEFAULT NULL,
+  `Licence` varchar(50) NOT NULL,
+  `Medicine_id` int(6) DEFAULT NULL,
+  KEY `Licence` (`Licence`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `total_sale`
+--
+
+INSERT INTO `total_sale` (`Year`, `Quantity_of_medicine`, `Amount_of_sales_in_birr`, `Medicine_title`, `Licence`, `Medicine_id`) VALUES
+('2009', 1000, 400000, 'Alupent', 'HO_pharmacy/1234', 70002),
+('2010', 1590, 316000, 'Metadoxine', 'HO_pharmacy/1237', 70003),
+('2010', 1590, 316000, 'Metadoxine', 'HO_pharmacy/1235', 70003),
+('2013', 1452, 582252, 'Beta_blockers', 'HO_pharmacy/1236', 70001);
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `annual_sales_profile` exported as a table
+--
+DROP TABLE IF EXISTS `annual_sales_profile`;
+CREATE TABLE IF NOT EXISTS `annual_sales_profile`(
+    `Amount_paid_in_birr` int(8) DEFAULT NULL,
+    `Amount_in_birr` int(8) DEFAULT NULL
+);
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `bill_report` exported as a table
+--
+DROP TABLE IF EXISTS `bill_report`;
+CREATE TABLE IF NOT EXISTS `bill_report`(
+    `Bill_id` int(10) NOT NULL,
+    `Amount_paid_in_birr` int(8) DEFAULT NULL,
+    `Bill_type` varchar(20) COLLATE latin1_swedish_ci DEFAULT NULL,
+    `Date` date DEFAULT NULL
+);
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `employee_review` exported as a table
+--
+DROP TABLE IF EXISTS `employee_review`;
+CREATE TABLE IF NOT EXISTS `employee_review`(
+    `Employee_id` int(5) NOT NULL,
+    `First_name` varchar(15) COLLATE latin1_swedish_ci DEFAULT NULL,
+    `Last_name` varchar(15) COLLATE latin1_swedish_ci DEFAULT NULL,
+    `Salary` int(6) DEFAULT NULL,
+    `Role_title` varchar(10) COLLATE latin1_swedish_ci DEFAULT NULL
+);
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `ordersview` exported as a table
+--
+DROP TABLE IF EXISTS `ordersview`;
+CREATE TABLE IF NOT EXISTS `ordersview`(
+    `Medicine_id` int(6) NOT NULL,
+    `Medicine_type` varchar(20) COLLATE latin1_swedish_ci DEFAULT NULL,
+    `Medicine_title` varchar(20) COLLATE latin1_swedish_ci DEFAULT NULL,
+    `Medicine_expiredate` varchar(10) COLLATE latin1_swedish_ci DEFAULT NULL,
+    `Medicine_cost` int(4) DEFAULT NULL,
+    `Quantity` int(10) NOT NULL
+);
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `pharm_stock` exported as a table
+--
+DROP TABLE IF EXISTS `pharm_stock`;
+CREATE TABLE IF NOT EXISTS `pharm_stock`(
+    `Type_of_drugs` varchar(20) COLLATE latin1_swedish_ci DEFAULT NULL,
+    `Number_of_drugs` int(8) DEFAULT NULL
+);
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `sales` exported as a table
+--
+DROP TABLE IF EXISTS `sales`;
+CREATE TABLE IF NOT EXISTS `sales`(
+    `Quantity_of_medicine` int(6) DEFAULT NULL,
+    `Amount_of_sales_in_birr` int(8) DEFAULT NULL,
+    `Medicine_title` varchar(20) COLLATE latin1_swedish_ci DEFAULT NULL
+);
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `tax_expenditure` exported as a table
+--
+DROP TABLE IF EXISTS `tax_expenditure`;
+CREATE TABLE IF NOT EXISTS `tax_expenditure`(
+    `Amount_of_sales_in_birr` int(8) DEFAULT NULL,
+    `Amout_paid` int(8) DEFAULT NULL
+);
+GRANT ALL PRIVILEGES ON pharmacy_management.employee TO 'manager'@'localhost';
+GRANT ALL PRIVILEGES ON pharmacy_management.pharmacy_branch TO 'manager'@'localhost';
+GRANT ALL PRIVILEGES ON pharmacy_management.tax TO 'manager'@'localhost';
+GRANT ALL PRIVILEGES ON pharmacy_management.supplier TO 'manager'@'localhost';
+GRANT ALL PRIVILEGES ON pharmacy_management.roles TO 'manager'@'localhost';
+GRANT ALL PRIVILEGES ON pharmacy_management.total_expense TO 'manager'@'localhost';
+GRANT ALL PRIVILEGES ON pharmacy_management.total_sales TO 'manager'@'localhost';
+GRANT ALL PRIVILEGES ON pharmacy_management.bill TO 'manager'@'localhost';
+GRANT ALL PRIVILEGES ON pharmacy_management.total_revenue TO 'manager'@'localhost';
+GRANT ALL PRIVILEGES ON pharmacy_management.causal_customer TO 'manager'@'localhost';
+GRANT ALL PRIVILEGES ON pharmacy_management.stock TO 'manager'@'localhost';
+GRANT ALL PRIVILEGES ON pharmacy_management.medicine TO 'manager'@'localhost';
+GRANT ALL PRIVILEGES ON pharmacy_management.delivery TO 'manager'@'localhost';
+GRANT ALL PRIVILEGES ON pharmacy_management.orders TO 'manager'@'localhost';
+
+GRANT INSERT,UPDATE,SELECT ON pharmacy_management.total_expense to 'cashier'@'localhost';
+GRANT INSERT,UPDATE,SELECT ON pharmacy_management.total_sales to 'cashier'@'localhost';
+GRANT INSERT,UPDATE,SELECT ON pharmacy_management.bill to 'cashier'@'localhost';
+GRANT INSERT,UPDATE,SELECT ON pharmacy_management.total_revenue to 'cashier'@'localhost';
+
+GRANT INSERT,UPDATE,SELECT ON pharmacy_management.medicine to 'pharmacist'@'localhost';
+GRANT INSERT,UPDATE,SELECT ON pharmacy_management.orders to 'pharmacist'@'localhost';
+
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
